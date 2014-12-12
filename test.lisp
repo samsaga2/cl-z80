@@ -7,4 +7,10 @@
   (ld hl 0)
   (halt))
 
+(defproc silly-infinite-loop
+  (ld a 0)
+  (label loop)
+  (inc a)
+  (jp loop))
+
 (save-image-and-quit "test.rom")
