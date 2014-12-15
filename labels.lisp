@@ -10,11 +10,6 @@
 (defun pop-namespace ()
   (setq *namespace* (cdr *namespace*)))
 
-(defmacro with-namespace (lbl &body body)
-  `(progn (push-namespace ,lbl)
-          ,@body
-          (pop-namespace)))
-
 (defun get-full-label-name (lbl ns)
   (format nil "~{~a.~}~a" (reverse ns) lbl))
 
@@ -34,8 +29,3 @@
 (defun set-label-address (label value)
   (setf (gethash (get-full-label-name label *namespace*) *labels*)
         value))
-
-(let ((count 0))
-  (defun genlabel (value)
-    (setq count (1+ count))
-    (putlabel (format t "l~a" count) value)))

@@ -1,9 +1,11 @@
-(in-package #:cl-z80)
-
-(defparameter *image* (make-array #x4000))
+(in-package #:cl-z80) 
+(defparameter *image* (make-array #x4000 :adjustable t))
 (defparameter *ip* 0)
 (defparameter *org* 0)
 (defparameter *forward-labels* '())
+
+(defun clear-forward-labels ()
+  (setq *forward-labels* '()))
 
 (defun add-forward-label (ip l)
   (setq *forward-labels*
@@ -16,14 +18,14 @@
       (add-forward-label *ip* n))
   (setq *ip* (1+ *ip*)))
 
-(defun emit (l)
+(defun emit (&rest l)
   (loop for i in l do (emit-byte i)))
 
 (defun emit-forward-labels ()
   (loop for l in *forward-labels* do
        (let ((ip (car l))
              (type (cadr l))
-             (lbl (getlabel (caddr l))))
+             (lbl (get-label-address (caddr l))))
          (cond ((null lbl)
                 (error (format t "label ~a not found" (caddr l))))
                ((eq type 'byte)
@@ -34,7 +36,7 @@
                 (setf (elt *image* ip) (high-word lbl)))
                ((eq type 'index)
                 (setf (elt *image* ip) lbl))))) ; TODO
-  (setq *forward-labels* '()))
+  (clear-forward-labels))
 
 (defun save-image (fname)
   (emit-forward-labels)
