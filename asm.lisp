@@ -48,8 +48,8 @@
                   (equal (symbol-name p) (symbol-name i)))
              (cont))
             ((and (listp i) (listp p))
-             (match-inst i p out)
-             (cont))
+             (when (match-inst i p (lambda () T))
+               (cont)))
             ;; byte
             ((and (eq p 'byte) (numberp n))
              (setq *byte* n)

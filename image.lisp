@@ -19,6 +19,7 @@
   (setq *ip* (1+ *ip*)))
 
 (defun emit (&rest l)
+  ;; (format t "~x ~%-----" l)
   (loop for i in l do (emit-byte i)))
 
 (defun emit-forward-labels ()

@@ -34,10 +34,6 @@
             (list (low-word i) (high-word i))
             (list (list 'low-word i) (list 'high-word i))))))
 
-(definst (repeat number lst)
-  (loop for i below *number* do
-       (asm-insts *lst*)))
-
 ;; http://nemesis.lonestar.org/computers/tandy/software/apps/m4/qd/opcodes.html 
 ;; 8 bit transfer instructions
 (definst (ld (bc) a) (emit #x02))
