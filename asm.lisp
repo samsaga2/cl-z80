@@ -26,7 +26,8 @@
               *insts*)))
 
 (defmacro definst (pattern &body out)
-  `(add-inst ,pattern (lambda () ,@out T)))
+  `(add-inst (quote ,pattern)
+             (lambda () ,@out T)))
 
 (defun forbidden-label? (sym)
   (member (symbol-name sym)
