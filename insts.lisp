@@ -5,9 +5,12 @@
   (setq *org* *number*)
   '())
 
-(definst '(label sym)
-  (putlabel *sym* (+ *org* *ip*))
-  '())
+(definst '(label sym lst)
+  (set-label-address *sym* (+ *org* *ip*))
+  (push-namespace *sym*)
+  (loop for i in *lst* do
+       (asm-inst i))
+  (pop-namespace))
 
 (definst '(db lst) *lst*)
 

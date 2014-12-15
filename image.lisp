@@ -3,6 +3,12 @@
 (defparameter *image* (make-array #x4000))
 (defparameter *ip* 0)
 (defparameter *org* 0)
+(defparameter *forward-labels* '())
+
+(defun add-forward-label (ip l)
+  (setq *forward-labels*
+        (cons (cons ip l)
+              *forward-labels*)))
 
 (defun emit-byte (n)
   (if (numberp n)

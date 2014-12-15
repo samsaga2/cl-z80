@@ -22,7 +22,7 @@
   (labels ((cont () (match-inst (cdr inst) (cdr pattern) out)))
     (let* ((i (car inst))
            (p (car pattern))
-           (n (if (numberp i) i (getlabel i)))) ; if the label is defined avoid add forward label
+           (n (if (numberp i) i (get-label-address i)))) ; if the label is defined avoid add forward label
       (cond ((null pattern)
              (funcall out))
             ((eq p i)
@@ -77,5 +77,4 @@
 
 ;; asm util
 (defmacro defproc (label &body body)
-  `(asm (label ,label)
-        ,@body))
+  `(asm (label ,label ,@body)))
