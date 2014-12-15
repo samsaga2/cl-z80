@@ -14,11 +14,11 @@
 
 (defproc silly-infinite-loop
   (ld a 0)
-  (label loop
-         (inc a)
-         (jp loop)
-         (label silly-label
-                (nop))))
+  (with-label loop
+    (inc a)
+    (jp loop)
+    (label silly-label))
+  (nop))
 
 (defproc label-namespaces
   (jp silly-infinite-loop.loop)

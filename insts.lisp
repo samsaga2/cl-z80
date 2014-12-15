@@ -5,12 +5,14 @@
   (setq *org* *number*)
   '())
 
-(definst '(label sym lst)
+(definst '(label sym)
   (set-label-address *sym* (+ *org* *ip*))
-  (push-namespace *sym*)
-  (loop for i in *lst* do
-       (asm-inst i))
-  (pop-namespace))
+  '())
+
+(definst '(with-label sym lst)
+  (set-label-address *sym* (+ *org* *ip*))
+  (with-namespace *sym*
+    (loop for i in *lst* collect (asm-inst i))))
 
 (definst '(db lst) *lst*)
 

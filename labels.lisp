@@ -10,6 +10,11 @@
 (defun pop-namespace ()
   (setq *namespace* (cdr *namespace*)))
 
+(defmacro with-namespace (lbl &body body)
+  `(progn (push-namespace ,lbl)
+          ,@body
+          (pop-namespace)))
+
 (defun get-full-label-name (lbl ns)
   (format nil "~{~a.~}~a" (reverse ns) lbl))
 
