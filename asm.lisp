@@ -68,7 +68,7 @@
              (cont))
             ;; index
             ((and (eq p 'index) (numberp n))
-             (setq *index* n)
+             (setq *index* (- n (+ *org* *ip*)))
              (cont))
             ((and (eq p 'index) (symbolp i) (not (forbidden-label? i)))
              (setq *index* (list 'index i))

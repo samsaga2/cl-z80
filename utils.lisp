@@ -10,13 +10,18 @@
     (let ((i (funcall fn (car xs))))
       (if i i (ormap fn (cdr xs))))))
 
+;; numbers
 (defun low-word (w)
   (logand w 255))
 
 (defun high-word (w)
   (ash w -8))
 
-;; checks
+(defun two-complement (n)
+  (if (< n 0)
+      (- (logxor #xff (- n)) 1)
+      n))
+
 (defun byte? (num)
   (and (numberp num)
        (between? num -127 255)))
