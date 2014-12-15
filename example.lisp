@@ -1,4 +1,9 @@
-(load "z80.lisp")
+(ql:quickload "cl-z80")
+
+(defpackage #:example
+  (:use #:cl #:cl-z80))
+
+(in-package #:example)
 
 (asm (org #x4000)
      (dw start 0 0 0 0 0 0))
@@ -13,4 +18,4 @@
   (inc a)
   (jp loop))
 
-(save-image-and-quit "test.rom")
+(save-image "test.rom")
