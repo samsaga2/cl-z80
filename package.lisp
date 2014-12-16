@@ -4,4 +4,5 @@
   (:use #:cl)
   (:export #:asm
            #:defproc
-           #:save-image))
+           #:save-image
+           #:save-symbols))

@@ -25,3 +25,4 @@
   (jp silly-infinite-loop.loop.silly-label))
 
 (save-image "test.rom")
+(save-symbols "test.sym")
