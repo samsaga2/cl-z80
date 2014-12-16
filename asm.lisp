@@ -95,8 +95,20 @@
 (defun asm-insts (insts)
   (loop for i in insts do (asm-inst i)))
 
+(defun expand-asm (l)
+  (cond ((null l)
+         '())
+        ((and (listp l)
+             (symbolp (car l))
+             (equal (symbol-name (car l)) "$"))
+         (cons (eval (cadr l)) (expand-asm (cddr l))))
+        ((listp l)
+         (cons (expand-asm (car l))
+               (expand-asm (cdr l))))
+        (t l)))
+
 (defmacro asm (&rest body)
-  `(asm-insts (quote ,body)))
+  `(asm-insts (quote ,(mapcar #'expand-asm body))))
 
 ;; asm util
 (defmacro defproc (label &body body)

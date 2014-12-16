@@ -24,5 +24,9 @@
   (jp silly-infinite-loop.loop)
   (jp silly-infinite-loop.loop.silly-label))
 
+(defproc lisp-code-inside
+  (ld hl 0)
+  (ld hl $ (* 1 2 3 4 5 6)))
+
 (save-image "test.rom")
 (save-symbols "test.sym")
