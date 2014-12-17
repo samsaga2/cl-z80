@@ -8,6 +8,7 @@
   :components ((:file "package")
                (:file "utils")
                (:file "labels")
+               (:file "forward")
                (:file "image")
                (:file "asm")
                (:file "insts")))

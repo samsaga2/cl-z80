@@ -55,7 +55,7 @@
              (setq *byte* n)
              (cont))
             ((and (eq p 'byte) (symbolp i) (not (forbidden-label? i)))
-             (setq *byte* (list 'byte i))
+             (setq *byte* (make-forward-byte i))
              (cont))
             ;; word
             ((and (eq p 'word) (numberp n))
@@ -63,15 +63,15 @@
              (setq *hword* (high-word n))
              (cont))
             ((and (eq p 'word) (symbolp i) (not (forbidden-label? i)))
-             (setq *lword* (list 'low-word i))
-             (setq *hword* (list 'high-word i))
+             (setq *lword* (make-forward-low-word i))
+             (setq *hword* (make-forward-high-word i))
              (cont))
             ;; index
             ((and (eq p 'index) (numberp n))
              (setq *index* (- n (+ *org* *ip*)))
              (cont))
             ((and (eq p 'index) (symbolp i) (not (forbidden-label? i)))
-             (setq *index* (list 'index i))
+             (setq *index* (make-forward-index i))
              (cont))
             ;; for special funcs
             ((eq p 'lst)
