@@ -68,9 +68,16 @@
              (cont))
             ;; index
             ((and (eq p 'index) (numberp n))
-             (setq *index* (- n (+ *org* *ip*)))
+             (setq *index* n)
              (cont))
             ((and (eq p 'index) (symbolp i) (not (forbidden-label? i)))
+             (setq *index* (make-forward-byte i))
+             (cont))
+            ;; relative index
+            ((and (eq p 'rindex) (numberp n))
+             (setq *index* (- n (+ *org* *ip*)))
+             (cont))
+            ((and (eq p 'rindex) (symbolp i) (not (forbidden-label? i)))
              (setq *index* (make-forward-index i))
              (cont))
             ;; for special funcs
