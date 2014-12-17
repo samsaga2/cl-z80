@@ -32,7 +32,8 @@
        (apply #'emit
         (if (numberp i)
             (list (low-word i) (high-word i))
-            (list (list 'low-word i) (list 'high-word i))))))
+            (list (make-forward-low-word i)
+                  (make-forward-high-word i))))))
 
 ;; http://nemesis.lonestar.org/computers/tandy/software/apps/m4/qd/opcodes.html 
 ;; 8 bit transfer instructions
