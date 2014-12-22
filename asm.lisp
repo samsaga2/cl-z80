@@ -41,7 +41,9 @@
     (let* ((i (car inst))
            (p (car pattern))
            (n (if (numberp i) i (get-label-address i)))) ; if the label is defined avoid add forward label
-      (cond ((null pattern)
+      (cond ((and (null pattern) (not (null inst)))
+             '())
+            ((null pattern)
              (funcall out))
             ((and (symbolp p)
                   (symbolp i)

@@ -45,5 +45,5 @@
                ((eq type 'high-word)
                 (setf (elt *image* ip) (high-word address)))
                ((eq type 'index)
-                (setf (elt *image* ip) (- address (+ org ip)))))))
+                (setf (elt *image* ip) (- address (+ org ip) 1))))))
   (clear-forward-labels))
