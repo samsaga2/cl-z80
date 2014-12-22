@@ -250,6 +250,12 @@
 (definst (adc hl hl) (emit #xed #x6a))
 (definst (adc hl sp) (emit #xed #x7a))
 
+;; double byte subtract with borrow-in instructions
+(definst (sbc hl bc) (emit #xed #x42))
+(definst (sbc hl de) (emit #xed #x52))
+(definst (sbc hl hl) (emit #xed #x62))
+(definst (sbc hl sp) (emit #xed #x72))
+
 ;; control instructions
 (definst (di) (emit #xf3))
 (definst (ei) (emit #xfb))
