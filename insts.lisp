@@ -46,6 +46,13 @@
   (asm-insts `((cp ,*byte*)
                (jp z ,*sym*))))
 
+(definst (incbin lst)
+    (loop for i in *lst* do
+         (with-open-file (stream i
+                                 :direction :input
+                                 :element-type 'unsigned-byte)
+           (emit (read-byte stream)))))
+
 ;; http://nemesis.lonestar.org/computers/tandy/software/apps/m4/qd/opcodes.html 
 ;; 8 bit transfer instructions
 (definst (ld (bc) a) (emit #x02))
