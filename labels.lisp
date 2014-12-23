@@ -3,9 +3,13 @@
 ;; namespace
 (defparameter *namespace* '())
 
-(defun push-namespace (n)
+(defun set-namespace (ns)
   (setq *namespace*
-        (cons n *namespace*)))
+        (when ns
+          (reverse (cl-ppcre:split "\\." ns)))))
+
+(defun push-namespace (n)
+  (setq *namespace* (cons n *namespace*)))
 
 (defun pop-namespace ()
   (setq *namespace* (cdr *namespace*)))

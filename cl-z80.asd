@@ -5,6 +5,7 @@
   :author "Your Name <your.name@example.com>"
   :license "Specify license here"
   :serial t
+  :depends-on ("cl-ppcre")
   :components ((:file "package")
                (:file "utils")
                (:file "labels")
@@ -12,4 +13,3 @@
                (:file "image")
                (:file "asm")
                (:file "insts")))
-

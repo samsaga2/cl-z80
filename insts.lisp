@@ -7,10 +7,7 @@
 (definst (size number)
   (adjust-array *image* *number*))
 
-(definst (label sym)
-  (set-label-address *sym* (+ *org* *ip*)))
-
-(definst (with-label sym lst)
+(definst (label sym lst)
   (set-label-address *sym* (+ *org* *ip*))
   (push-namespace *sym*)
   (asm-insts *lst*)
@@ -34,6 +31,20 @@
             (list (low-word i) (high-word i))
             (list (make-forward-low-word i)
                   (make-forward-high-word i))))))
+
+(definst (loop lst)
+  (asm-inst `(label loop
+               ,@*lst*
+               (djnz loop))))
+
+(definst (save reg lst)
+  (asm-insts `((push ,*reg*)
+               ,@*lst*
+               (pop ,*reg*))))
+
+(definst (case byte sym)
+  (asm-insts `((cp ,*byte*)
+               (jp z ,*sym*))))
 
 ;; http://nemesis.lonestar.org/computers/tandy/software/apps/m4/qd/opcodes.html 
 ;; 8 bit transfer instructions

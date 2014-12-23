@@ -18,7 +18,8 @@
         *hword* 0
         *lst* '()
         *number* 0
-        *sym* '()))
+        *sym* '()
+        *reg* '()))
 
 (defun add-inst (pattern out)
   (setq *insts*
@@ -95,6 +96,9 @@
              (cont))
             ((and (eq p 'sym) (symbolp i) (not (forbidden-label? i)))
              (setq *sym* i)
+             (cont))
+            ((and (eq p 'reg) (symbolp i) (forbidden-label? i))
+             (setq *reg* i)
              (cont))))))
 
 ;; asm
@@ -125,4 +129,12 @@
 
 ;; asm util
 (defmacro defproc (label &body body)
-  `(asm (with-label ,label ,@body)))
+  `(asm (label ,label ,@body)))
+
+(defmacro defequ (label &body value)
+  `(asm (equ ,label ,@value)))
+
+(defmacro defnamespace (&optional ns)
+  (if (null ns)
+      `(set-namespace '())
+      `(set-namespace ,(symbol-name ns))))
