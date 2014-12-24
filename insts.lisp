@@ -33,9 +33,10 @@
                   (make-forward-high-word i))))))
 
 (definst (loop lst)
-  (asm-inst `(label loop
-               ,@*lst*
-               (djnz loop))))
+  (let ((lbl (genlabel)))
+    (asm-inst `(label ,lbl
+                      ,@*lst*
+                      (djnz ,lbl)))))
 
 (definst (save reg lst)
   (asm-insts `((push ,*reg*)
@@ -51,7 +52,8 @@
          (with-open-file (stream i
                                  :direction :input
                                  :element-type 'unsigned-byte)
-           (emit (read-byte stream)))))
+           (loop for byte = (read-byte stream nil) while byte do
+                (emit byte)))))
 
 ;; http://nemesis.lonestar.org/computers/tandy/software/apps/m4/qd/opcodes.html 
 ;; 8 bit transfer instructions
@@ -507,7 +509,7 @@
 (definst (inir) (emit #xed #xb2))
 (definst (ind) (emit #xed #xaa))
 (definst (indr) (emit #xed #xba))
-(definst (out (byte) a) (emit #xd3 #x20))
+(definst (out (byte) a) (emit #xd3 *byte*))
 (definst (out (c) a) (emit #xed #x79))
 (definst (out (c) b) (emit #xed #x41))
 (definst (out (c) c) (emit #xed #x49))

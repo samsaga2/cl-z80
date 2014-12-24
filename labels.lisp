@@ -40,3 +40,8 @@
                           :if-exists :supersede)
     (loop for key being the hash-keys of *labels* using (hash-value value) do
          (format stream "~a: equ 0x~x~%" key value))))
+
+(let ((count 0))
+  (defun genlabel ()
+    (setq count (1+ count))
+    (intern (format nil "~_l~a" count))))
