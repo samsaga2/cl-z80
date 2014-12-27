@@ -6,7 +6,7 @@
 
 (defun emit-byte (n)
   (if (numberp n)
-      (setf (elt *image* *ip*) (two-complement n))
+      (setf (elt *image* *ip*) n)
       (add-foward-label *ip* n))
   (setq *ip* (1+ *ip*)))
 

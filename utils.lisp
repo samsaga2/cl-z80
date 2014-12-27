@@ -17,9 +17,14 @@
 (defun high-word (w)
   (ash w -8))
 
-(defun two-complement (n)
+(defun byte-two-complement (n)
   (if (< n 0)
-      (- (logxor #xff (- n)) 1)
+      (1+ (logxor #xff (- n)))
+      n))
+
+(defun word-two-complement (n)
+  (if (< n 0)
+      (1+ (logxor #xffff (- n)))
       n))
 
 (defun byte? (num)
