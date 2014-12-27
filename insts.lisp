@@ -47,6 +47,11 @@
   (asm-insts `((cp ,*byte*)
                (jp z ,*sym*))))
 
+(definst (cond lst)
+  (loop for i in *lst* do
+       (asm-insts `((cp ,(car i))
+                    (jp z,(cadr i))))))
+
 (definst (incbin lst)
     (loop for i in *lst* do
          (with-open-file (stream i
