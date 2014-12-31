@@ -3,9 +3,9 @@
 (defpackage #:cl-z80
   (:use #:cl)
   (:export #:asm
-           #:defproc
-           #:defequ
-           #:defnamespace
+           #:asmproc
+           #:asmequ
+           #:asmpackage
            #:set-namespace
            #:save-image
            #:save-symbols))

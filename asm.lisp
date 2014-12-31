@@ -129,13 +129,13 @@
   `(asm-insts (quote ,(mapcar #'expand-asm body))))
 
 ;; asm util
-(defmacro defproc (label &body body)
+(defmacro asmproc (label &body body)
   `(asm (label ,label ,@body)))
 
-(defmacro defequ (label &body value)
+(defmacro asmequ (label &body value)
   `(asm (equ ,label ,@value)))
 
-(defmacro defnamespace (&optional ns)
+(defmacro asmpackage (&optional ns)
   (if (null ns)
       `(set-namespace '())
       `(set-namespace ,(symbol-name ns))))
