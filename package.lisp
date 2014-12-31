@@ -6,6 +6,10 @@
            #:asmproc
            #:asmequ
            #:asmpackage
+           #:make-space
+           #:new-space
+           #:new-byte
+           #:new-word
            #:set-namespace
            #:save-image
            #:save-symbols))

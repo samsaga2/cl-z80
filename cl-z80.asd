@@ -11,5 +11,6 @@
                (:file "labels")
                (:file "forward")
                (:file "image")
+               (:file "space")
                (:file "asm")
                (:file "insts")))
