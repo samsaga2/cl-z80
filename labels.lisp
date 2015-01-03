@@ -1,7 +1,7 @@
 (in-package #:cl-z80)
 
 ;; namespace
-(defparameter *namespace* '())
+(defparameter *namespace* nil)
 
 (defun set-namespace (ns)
   (setq *namespace*
@@ -24,14 +24,14 @@
   (let* ((label-ns (get-full-label-name label ns))
          (address (gethash label-ns *labels*)))
     (cond (address address)
-          ((null ns) '())
+          ((null ns) nil)
           (t (get-label-in-ns label (cdr ns))))))
 
-(defun get-label-address (label)
+(defun get-label (label)
   (get-label-in-ns label *namespace*))
 
-(defun set-label-address (label value)
-  (if (get-label-address label)
+(defun set-label (label value)
+  (if (get-label label)
       (format t "duplicated label ~a~%"
               (get-full-label-name label *namespace*))
       (setf (gethash (get-full-label-name label *namespace*) *labels*)

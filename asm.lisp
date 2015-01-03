@@ -1,14 +1,16 @@
 (in-package #:cl-z80)
 
-(defparameter *insts* '())
+(defparameter *insts* nil)
+
 (defvar *byte* 0)
 (defvar *index* 0)
 (defvar *word* 0)
 (defvar *lword* 0)
 (defvar *hword* 0)
-(defvar *lst* '())
+(defvar *lst* nil)
 (defvar *number* 0)
-(defvar *sym* '())
+(defvar *sym* nil)
+(defvar *reg* nil)
 
 (defun clear-inst ()
   (setq *byte* 0
@@ -16,12 +18,24 @@
         *word* 0
         *lword* 0
         *hword* 0
-        *lst* '()
+        *lst* nil
         *number* 0
-        *sym* '()
-        *reg* '()))
+        *sym* nil
+        *reg* nil))
+
+(defparameter *forbidden-symbols* '())
+
+(defun add-forbidden-symbols (pattern)
+  (cond ((numberp pattern) nil)
+        ((listp pattern)
+         (dolist (i pattern)
+           (add-forbidden-symbols i)))
+        (t
+         (setq *forbidden-symbols*
+               (adjoin (format nil "~a" pattern) *forbidden-symbols*)))))
 
 (defun add-inst (pattern out)
+  (add-forbidden-symbols pattern)
   (setq *insts*
         (cons (cons pattern out)
               *insts*)))
@@ -30,75 +44,105 @@
   `(add-inst (quote ,pattern)
              (lambda () ,@out T)))
 
-(defun forbidden-label? (sym)
+
+(defun forbidden-symbol? (sym)
   (member (symbol-name sym)
-          '("A" "B" "C" "D" "E" "H" "L" "R" "IXL" "IXH" "IYL" "IYH"
-            "AF" "BC" "DE" "HL" "DE" "IX" "IY" "SP"
-            "Z" "NZ" "C" "NC" "PO" "PE" "P" "M")
+          *forbidden-symbols*
           :test #'equal))
 
-(defun match-inst (inst pattern out)
-  (labels ((cont () (match-inst (cdr inst) (cdr pattern) out)))
+(declaim (debug 3))
+
+(defun match-inst (skip-fun inst pattern out)
+  (labels ((cont ()
+             (match-inst nil (cdr inst) (cdr pattern) out))
+           (evalarg (i)
+             (or (get-label i)
+                 (when (and (listp i) (not skip-fun))
+                   (let ((funsym (car i)))
+                     (when (and (symbolp funsym)
+                                (not (forbidden-symbol? funsym))
+                                (fboundp funsym))
+                       (eval i))))
+                 i)))
     (let* ((i (car inst))
            (p (car pattern))
-           (n (if (numberp i) i (get-label-address i)))) ; if the label is defined avoid add forward label
-      (cond ((and (null pattern) (not (null inst)))
-             '())
-            ((null pattern)
+           (n (evalarg i)))
+      (cond ((and (null pattern)        ; wrong pattern
+                  (not (null inst)))
+             nil)                       
+            ((null pattern)             ; ok pattern
              (funcall out))
-            ((and (symbolp p)
+            ((and (symbolp p)           ; match symbol
                   (symbolp i)
                   (equal (symbol-name p) (symbol-name i)))
              (cont))
-            ((and (numberp p)
+            ((and (numberp p)           ; match number
                   (numberp i)
                   (equal p i))
              (cont))
-            ((and (listp i) (listp p))
-             (when (match-inst i p (lambda () T))
+            ((and (listp i)             ; match list
+                  (listp p))
+             (when (match-inst nil i p (lambda () t))
                (cont)))
             ;; byte
-            ((and (eq p 'byte) (numberp n))
+            ((and (eq p 'byte)          ; match byte
+                  (numberp n))
              (setq *byte* (byte-two-complement n))
              (cont))
-            ((and (eq p 'byte) (symbolp i) (not (forbidden-label? i)))
+            ((and (eq p 'byte)          ; match forward byte
+                  (symbolp i)
+                  (not (forbidden-symbol? i)))
              (setq *byte* (make-forward-byte i))
              (cont))
             ;; word
-            ((and (eq p 'word) (numberp n))
+            ((and (eq p 'word)          ; match word
+                  (numberp n))
              (let ((n (word-two-complement n)))
                (setq *lword* (low-word n))
                (setq *hword* (high-word n)))
              (cont))
-            ((and (eq p 'word) (symbolp i) (not (forbidden-label? i)))
+            ((and (eq p 'word)          ; match forward word
+                  (symbolp i)
+                  (not (forbidden-symbol? i)))
              (setq *lword* (make-forward-low-word i))
              (setq *hword* (make-forward-high-word i))
              (cont))
             ;; index
-            ((and (eq p 'index) (numberp n))
+            ((and (eq p 'index)         ; match index
+                  (numberp n))
              (setq *index* (byte-two-complement n))
              (cont))
-            ((and (eq p 'index) (symbolp i) (not (forbidden-label? i)))
+            ((and (eq p 'index)         ; match forward index
+                  (symbolp i)
+                  (not (forbidden-symbol? i)))
              (setq *index* (make-forward-byte i))
              (cont))
             ;; relative index
-            ((and (eq p 'rindex) (numberp n))
+            ((and (eq p 'rindex)        ; match relative index
+                  (numberp n))
              (setq *index* (byte-two-complement (- n (+ *org* *ip*) 2)))
              (cont))
-            ((and (eq p 'rindex) (symbolp i) (not (forbidden-label? i)))
+            ((and (eq p 'rindex)        ; match forward relative index
+                  (symbolp i)
+                  (not (forbidden-symbol? i)))
              (setq *index* (make-forward-index i))
              (cont))
-            ;; for special funcs
-            ((eq p 'lst)
+            ;; for special insts
+            ((eq p 'lst)                ; match rest
              (setq *lst* inst)
              (funcall out))
-            ((and (eq p 'number) (numberp n))
+            ((and (eq p 'number)        ; match number
+                  (numberp n))
              (setq *number* n)
              (cont))
-            ((and (eq p 'sym) (symbolp i) (not (forbidden-label? i)))
+            ((and (eq p 'sym)           ; match symbol
+                  (symbolp i)
+                  (not (forbidden-symbol? i)))
              (setq *sym* i)
              (cont))
-            ((and (eq p 'reg) (symbolp i) (forbidden-label? i))
+            ((and (eq p 'reg)           ; match forbidden sym
+                  (symbolp i)
+                  (forbidden-symbol? i))
              (setq *reg* i)
              (cont))))))
 
@@ -106,29 +150,19 @@
 (defun asm-inst (inst)
   (clear-inst)
   (or
-   (ormap (lambda (i) (match-inst inst (car i) (cdr i)))
+   (ormap (lambda (i) (match-inst t inst (car i) (cdr i)))
           *insts*)
    (format t "syntax error ~a~%" inst)))
 
 (defun asm-insts (insts)
-  (loop for i in insts do (asm-inst i)))
+  (dolist (i insts)
+    (asm-inst i)))
 
-(defun expand-asm (l)
-  (cond ((null l)
-         '())
-        ((and (listp l)
-             (symbolp (car l))
-             (equal (symbol-name (car l)) "$"))
-         (cons (eval (cadr l)) (expand-asm (cddr l))))
-        ((listp l)
-         (cons (expand-asm (car l))
-               (expand-asm (cdr l))))
-        (t l)))
-
-(defmacro asm (&rest body)
-  `(asm-insts (quote ,(mapcar #'expand-asm body))))
 
 ;; asm util
+(defmacro asm (&rest body)
+  `(asm-insts (quote ,body)))
+
 (defmacro asmproc (label &body body)
   `(asm (label ,label ,@body)))
 
@@ -137,5 +171,5 @@
 
 (defmacro asmpackage (&optional ns)
   (if (null ns)
-      `(set-namespace '())
+      `(set-namespace nil)
       `(set-namespace ,(symbol-name ns))))

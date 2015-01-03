@@ -8,13 +8,13 @@
   (adjust-array *image* *number*))
 
 (definst (label sym lst)
-  (set-label-address *sym* (+ *org* *ip*))
+  (set-label *sym* (+ *org* *ip*))
   (push-namespace *sym*)
   (asm-insts *lst*)
   (pop-namespace))
 
 (definst (equ sym number)
-  (set-label-address *sym* *number*))
+  (set-label *sym* *number*))
 
 (definst (db lst)
   (flet ((split-str (str)

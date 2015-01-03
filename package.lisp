@@ -10,6 +10,8 @@
            #:new-space
            #:new-byte
            #:new-word
+           #:get-label
+           #:set-label
            #:set-namespace
            #:save-image
            #:save-symbols))
