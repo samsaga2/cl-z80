@@ -43,10 +43,6 @@
                ,@*lst*
                (pop ,*reg*))))
 
-(definst (case byte sym)
-  (asm-insts `((cp ,*byte*)
-               (jp z ,*sym*))))
-
 (definst (cond lst)
   (loop for i in *lst* do
        (asm-insts `((cp ,(car i))
@@ -59,6 +55,54 @@
                                  :element-type 'unsigned-byte)
            (loop for byte = (read-byte stream nil) while byte do
                 (emit byte)))))
+
+(definst (unless reg lst)
+  (let ((lbl (genlabel)))
+    (asm-insts `((jr ,*reg* ,lbl)
+                 ,@*lst*
+                 (label ,lbl)))))
+
+(definst (loop-while reg lst)
+  (let ((lbl (genlabel)))
+    (asm-insts `((label ,lbl)
+                 ,@*lst*
+                 (jr ,*reg* ,lbl)))))
+
+(definst (loop-forever lst)
+  (let ((lbl (genlabel)))
+    (asm-insts `((label ,lbl)
+                 ,@*lst*
+                 (jr ,lbl)))))
+
+(definst (with-di lst)
+  (asm-insts `((di)
+                 ,@*lst*
+                 (ei))))
+
+(definst (ld bc ix)
+  (asm (push ix) (pop bc)))
+
+(definst (ld bc iy)
+  (asm (push iy) (pop bc)))
+
+(definst (ld hl ix)
+  (asm (push ix) (pop hl)))
+
+(definst (ld hl iy)
+  (asm (push iy) (pop hl)))
+
+(definst (ld de ix)
+  (asm (push ix) (pop de)))
+
+(definst (ld de iy)
+  (asm (push iy) (pop de)))
+
+(definst (mul hl number)
+  (let ((pwr (log *number* 2)))
+    (if (= pwr (floor pwr))
+        (dotimes (i (floor pwr))
+          (asm (add hl hl)))
+        (format t "mult hl ~a is not supported" *number*))))
 
 ;; http://nemesis.lonestar.org/computers/tandy/software/apps/m4/qd/opcodes.html 
 ;; 8 bit transfer instructions
