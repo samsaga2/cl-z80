@@ -25,32 +25,29 @@
 
 (defparameter *forbidden-symbols* '())
 
+(defun add-forbidden-symbol (sym)
+  (setq *forbidden-symbols*
+        (adjoin (string sym) *forbidden-symbols*)))
+
 (defun add-forbidden-symbols (pattern)
   (cond ((numberp pattern) nil)
         ((listp pattern)
          (dolist (i pattern)
            (add-forbidden-symbols i)))
         (t
-         (setq *forbidden-symbols*
-               (adjoin (format nil "~a" pattern) *forbidden-symbols*)))))
+         (add-forbidden-symbol pattern))))
+
+(defun forbidden-symbol? (sym)
+  (member (symbol-name sym) *forbidden-symbols*
+          :test #'equal))
 
 (defun add-inst (pattern out)
   (add-forbidden-symbols pattern)
-  (setq *insts*
-        (cons (cons pattern out)
-              *insts*)))
+  (setq *insts* (cons (cons pattern out) *insts*)))
 
 (defmacro definst (pattern &body out)
   `(add-inst (quote ,pattern)
-             (lambda () ,@out T)))
-
-
-(defun forbidden-symbol? (sym)
-  (member (symbol-name sym)
-          *forbidden-symbols*
-          :test #'equal))
-
-(declaim (debug 3))
+             (lambda () ,@out t)))
 
 (defun match-inst (skip-fun inst pattern out)
   (labels ((cont ()
