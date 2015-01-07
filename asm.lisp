@@ -120,7 +120,10 @@
             ;; relative index
             ((and (eq p 'rindex)        ; match relative index
                   (numberp n))
-             (setq *index* (byte-two-complement (- n (+ *org* *ip*) 2)))
+             (setq *index*
+                   (byte-two-complement
+                    (- n (page-address (get-current-page))
+                       2)))
              (cont))
             ((and (eq p 'rindex)        ; match forward relative index
                   (symbolp i)

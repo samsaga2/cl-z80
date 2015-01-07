@@ -13,5 +13,7 @@
            #:get-label
            #:set-label
            #:set-namespace
+           #:defpage
+           #:change-page
            #:save-image
            #:save-symbols))

@@ -1,14 +1,8 @@
 (in-package #:cl-z80)
 
 ;; special funcs
-(definst (org number)
-  (setq *org* *number*))
-
-(definst (size number)
-  (adjust-array *image* *number*))
-
 (definst (label sym lst)
-  (set-label *sym* (+ *org* *ip*))
+  (set-label *sym* (page-address (get-current-page)))
   (push-namespace *sym*)
   (asm-insts *lst*)
   (pop-namespace))
@@ -17,12 +11,10 @@
   (set-label *sym* *number*))
 
 (definst (db lst)
-  (flet ((split-str (str)
-           (loop for i across str do (emit-byte (char-int i)))))
-    (loop for i in *lst* do
-         (cond ((numberp i) (apply #'emit (list i)))
-               ((stringp i) (split-str i))
-               (t (format nil "unknown value in db: ~a~%" i))))))
+  (dolist (i *lst*)
+    (cond ((numberp i) (emit i))
+          ((stringp i) (emit-string i))
+          (t (format nil "unknown value in db: ~a~%" i)))))
 
 (definst (dw lst)
   (loop for i in *lst* append
