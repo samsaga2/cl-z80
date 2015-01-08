@@ -31,11 +31,11 @@
   (get-label-in-ns label *namespace*))
 
 (defun set-label (label value)
-  (if (get-label label)
+  (when (get-label label)
       (format t "duplicated label ~a~%"
-              (get-full-label-name label *namespace*))
-      (setf (gethash (get-full-label-name label *namespace*) *labels*)
-            value)))
+              (get-full-label-name label *namespace*)))
+  (setf (gethash (get-full-label-name label *namespace*) *labels*)
+        value))
 
 (defun save-symbols (fname)
   (with-open-file (stream fname

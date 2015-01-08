@@ -96,6 +96,18 @@
           (asm (add hl hl)))
         (format t "mult hl ~a is not supported" *number*))))
 
+(definst (enum lst)
+  (labels ((enum-index (lst index)
+             (unless (null lst)
+               (let ((hd (car lst))
+                     (tl (cdr lst)))
+                 (when (numberp (car tl))
+                   (setq index (car tl))
+                   (setq tl (cdr tl)))
+                 (set-label hd index)
+                 (enum-index tl (1+ index))))))
+    (enum-index *lst* 0)))
+
 ;; http://nemesis.lonestar.org/computers/tandy/software/apps/m4/qd/opcodes.html 
 ;; 8 bit transfer instructions
 (definst (ld (bc) a) (emit #x02))
