@@ -96,6 +96,10 @@
           (asm (add hl hl)))
         (format t "mult hl ~a is not supported" *number*))))
 
+(definst (repeat number lst)
+  (dotimes (i *number*)
+    (asm-insts *lst*)))
+
 (definst (enum lst)
   (labels ((enum-index (lst index)
              (unless (null lst)

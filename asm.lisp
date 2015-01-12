@@ -49,21 +49,21 @@
   `(add-inst (quote ,pattern)
              (lambda () ,@out t)))
 
-(defun match-inst (skip-fun inst pattern out)
+(defun try-eval (i)
+  (if (listp i)
+      (let ((funsym (car i)))
+        (if (and (symbolp funsym)
+                 (not (forbidden-symbol? funsym))
+                 (fboundp funsym))
+            (eval i)
+            (mapcar #'try-eval i)))
+      (or (get-label i) i)))
+
+(defun match-inst (inst pattern out)
   (labels ((cont ()
-             (match-inst nil (cdr inst) (cdr pattern) out))
-           (evalarg (i)
-             (or (get-label i)
-                 (when (and (listp i) (not skip-fun))
-                   (let ((funsym (car i)))
-                     (when (and (symbolp funsym)
-                                (not (forbidden-symbol? funsym))
-                                (fboundp funsym))
-                       (eval i))))
-                 i)))
+             (match-inst (cdr inst) (cdr pattern) out)))
     (let* ((i (car inst))
-           (p (car pattern))
-           (n (evalarg i)))
+           (p (car pattern)))
       (cond ((and (null pattern)        ; wrong pattern
                   (not (null inst)))
              nil)                       
@@ -79,68 +79,66 @@
              (cont))
             ((and (listp i)             ; match list
                   (listp p))
-             (when (match-inst nil i p (lambda () t))
+             (when (match-inst i p (lambda () t))
                (cont)))
             ;; byte
-            ((and (eq p 'byte)          ; match byte
-                  (numberp n))
-             (setq *byte* (byte-two-complement n))
+            ((and (eq-symbol-name p 'byte)          ; match byte
+                  (numberp i))
+             (setq *byte* (byte-two-complement i))
              (cont))
-            ((and (eq p 'byte)          ; match forward byte
+            ((and (eq-symbol-name p 'byte)          ; match forward byte
                   (symbolp i)
                   (not (forbidden-symbol? i)))
              (setq *byte* (make-forward-byte i))
              (cont))
             ;; word
-            ((and (eq p 'word)          ; match word
-                  (numberp n))
-             (let ((n (word-two-complement n)))
-               (setq *lword* (low-word n))
-               (setq *hword* (high-word n)))
+            ((and (eq-symbol-name p 'word)          ; match word
+                  (numberp i))
+             (let ((i (word-two-complement i)))
+               (setq *lword* (low-word i))
+               (setq *hword* (high-word i)))
              (cont))
-            ((and (eq p 'word)          ; match forward word
+            ((and (eq-symbol-name p 'word)          ; match forward word
                   (symbolp i)
                   (not (forbidden-symbol? i)))
              (setq *lword* (make-forward-low-word i))
              (setq *hword* (make-forward-high-word i))
              (cont))
             ;; index
-            ((and (eq p 'index)         ; match index
-                  (numberp n))
-             (setq *index* (byte-two-complement n))
+            ((and (eq-symbol-name p 'index)         ; match index
+                  (numberp i))
+             (setq *index* (byte-two-complement i))
              (cont))
-            ((and (eq p 'index)         ; match forward index
+            ((and (eq-symbol-name p 'index)         ; match forward index
                   (symbolp i)
                   (not (forbidden-symbol? i)))
              (setq *index* (make-forward-byte i))
              (cont))
             ;; relative index
-            ((and (eq p 'rindex)        ; match relative index
-                  (numberp n))
+            ((and (eq-symbol-name p 'rindex)        ; match relative index
+                  (numberp i))
              (setq *index*
-                   (byte-two-complement
-                    (- n (page-address (get-current-page))
-                       2)))
+                   (byte-two-complement (- i (page-address (get-current-page)) 2)))
              (cont))
-            ((and (eq p 'rindex)        ; match forward relative index
+            ((and (eq-symbol-name p 'rindex)        ; match forward relative index
                   (symbolp i)
                   (not (forbidden-symbol? i)))
              (setq *index* (make-forward-index i))
              (cont))
             ;; for special insts
-            ((eq p 'lst)                ; match rest
+            ((eq-symbol-name p 'lst)                ; match rest
              (setq *lst* inst)
              (funcall out))
-            ((and (eq p 'number)        ; match number
-                  (numberp n))
-             (setq *number* n)
+            ((and (eq-symbol-name p 'number)        ; match number
+                  (numberp i))
+             (setq *number* i)
              (cont))
-            ((and (eq p 'sym)           ; match symbol
+            ((and (eq-symbol-name p 'sym)           ; match symbol
                   (symbolp i)
                   (not (forbidden-symbol? i)))
              (setq *sym* i)
              (cont))
-            ((and (eq p 'reg)           ; match forbidden sym
+            ((and (eq-symbol-name p 'reg)           ; match forbidden sym
                   (symbolp i)
                   (forbidden-symbol? i))
              (setq *reg* i)
@@ -150,8 +148,10 @@
 (defun asm-inst (inst)
   (clear-inst)
   (or
-   (ormap (lambda (i) (match-inst t inst (car i) (cdr i)))
-          *insts*)
+   (let ((inst (try-eval inst)))
+     (ormap (lambda (i)
+              (match-inst inst (car i) (cdr i)))
+            *insts*))
    (format t "syntax error ~a~%" inst)))
 
 (defun asm-insts (insts)

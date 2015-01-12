@@ -10,6 +10,12 @@
     (let ((i (funcall fn (car xs))))
       (if i i (ormap fn (cdr xs))))))
 
+(defun eq-symbol-name (s1 s2)
+  (when (and (symbolp s1)
+             (symbolp s2))
+    (equal (symbol-name s1)
+           (symbol-name s2))))
+
 ;; numbers
 (defun low-word (w)
   (logand w 255))
