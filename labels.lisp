@@ -32,8 +32,8 @@
 
 (defun set-label (label value)
   (when (get-label label)
-      (format t "duplicated label ~a~%"
-              (get-full-label-name label *namespace*)))
+    (format t "duplicated label ~a~%"
+            (get-full-label-name label *namespace*)))
   (setf (gethash (get-full-label-name label *namespace*) *labels*)
         value))
 

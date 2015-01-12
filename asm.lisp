@@ -166,10 +166,13 @@
 (defmacro asmproc (label &body body)
   `(asm (label ,label ,@body)))
 
-(defmacro asmequ (label &body value)
+(defmacro asmequ (label &rest value)
   `(asm (equ ,label ,@value)))
 
 (defmacro asmpackage (&optional ns)
   (if (null ns)
       `(set-namespace nil)
       `(set-namespace ,(symbol-name ns))))
+
+(defmacro asmenum (label &rest values)
+  `(asmproc ,label (enum ,@values)))
