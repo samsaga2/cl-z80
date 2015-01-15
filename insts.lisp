@@ -97,8 +97,9 @@
         (format t "mult hl ~a is not supported" *number*))))
 
 (definst (repeat number lst)
-  (dotimes (i *number*)
-    (asm-insts *lst*)))
+  (let ((lst (copy-list *lst*)))
+    (dotimes (i *number*)
+      (asm-insts lst))))
 
 (definst (enum lst)
   (labels ((enum-index (lst index)

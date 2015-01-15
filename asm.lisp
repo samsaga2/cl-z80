@@ -55,7 +55,9 @@
         (if (and (symbolp funsym)
                  (not (forbidden-symbol? funsym))
                  (fboundp funsym))
-            (eval i)
+            (if (member (car i) '(+ - * /))
+                (eval (cons (car i) (mapcar #'try-eval (cdr i))))
+                (eval i))
             (mapcar #'try-eval i)))
       (or (get-label i) i)))
 
