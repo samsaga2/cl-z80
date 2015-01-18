@@ -3,7 +3,7 @@
 (defstruct pointer index)
 
 (defun make-space (start-index)
-  (make-pointer :index #xc000))
+  (make-pointer :index start-index))
 
 (defun new-space (bytes ptr)
   (let ((p (pointer-index ptr)))
