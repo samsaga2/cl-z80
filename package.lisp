@@ -28,6 +28,7 @@
            #:set-label
            #:set-namespace
            #:defpage
-           #:change-page
+           #:set-page
+           #:get-page
            #:save-image
            #:save-symbols))

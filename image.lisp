@@ -11,7 +11,7 @@
 
 (defparameter *pages* (make-array 256 :initial-element nil))
 
-(defparameter *current-page* 0)
+(defparameter *current-pages* (list 0))
 
 (defun defpage (index origin size)
   (setf (aref *pages* index)
@@ -22,11 +22,14 @@
 
 (defpage 0 0 #x4000)
 
-(defun change-page (index)
-  (setq *current-page* index))
+(defun set-page (&rest indices)
+  (setq *current-pages* indices))
+
+(defun get-page ()
+  (car *current-pages*))
 
 (defun get-current-page ()
-  (aref *pages* *current-page*))
+  (aref *pages* (get-page)))
 
 (defun page-address (page)
   (let ((page (get-current-page))
@@ -34,13 +37,24 @@
         (ip (page-ip page)))
     (+ org ip)))
 
+(defun out-of-bounds ()
+  (let ((page (get-current-page)))
+    (= (page-ip page) (page-size page))))
+
+(defun move-to-next-page ()
+  (if (null *current-pages*)
+      (error "out of bounds")
+      (setq *current-pages* (cdr *current-pages*))))
+
 (defun emit-byte (n)
+  (when (out-of-bounds)
+    (move-to-next-page))
   (let* ((page (get-current-page))
          (image (page-image page))
          (ip (page-ip page)))
     (if (numberp n)
         (setf (aref image ip) n)
-        (add-forward-label *current-page* ip n))
+        (add-forward-label (get-page) ip n))
     (setf (page-ip page) (1+ ip))))
 
 (defun emit (&rest l)
