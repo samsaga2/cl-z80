@@ -44,7 +44,10 @@
 (defun move-to-next-page ()
   (if (null *current-pages*)
       (error "out of bounds")
-      (setq *current-pages* (cdr *current-pages*))))
+      (progn
+        (setq *current-pages* (cdr *current-pages*))
+        (when (out-of-bounds)
+          (move-to-next-page)))))
 
 (defun emit-byte (n)
   (when (out-of-bounds)
