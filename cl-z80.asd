@@ -12,5 +12,7 @@
                (:file "forward")
                (:file "image")
                (:file "space")
+               (:file "forbidden")
+               (:file "match")
                (:file "asm")
                (:file "insts")))

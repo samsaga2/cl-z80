@@ -1,1 +1,3 @@
 test.rom
+*.fasl
+*.sym

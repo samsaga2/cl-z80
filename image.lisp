@@ -31,10 +31,10 @@
 (defun get-current-page ()
   (aref *pages* (get-page)))
 
-(defun page-address (page)
-  (let ((page (get-current-page))
-        (org (page-origin page))
-        (ip (page-ip page)))
+(defun page-address ()
+  (let* ((page (get-current-page))
+         (org (page-origin page))
+         (ip (page-ip page)))
     (+ org ip)))
 
 (defun out-of-bounds ()
@@ -50,6 +50,8 @@
           (move-to-next-page)))))
 
 (defun emit-byte (n)
+  (when (and (numberp n) (> n 255))
+    (error 'jarl))
   (when (out-of-bounds)
     (move-to-next-page))
   (let* ((page (get-current-page))
