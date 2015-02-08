@@ -120,7 +120,7 @@
                (unless (null lst)
                  (let ((hd (car lst))
                        (tl (cadr lst)))
-                   (set-label hd tl)
+                   (set-label hd size)
                    (incf size tl)
                    (struct (cddr lst))))))
       (struct lst)
