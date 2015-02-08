@@ -114,6 +114,18 @@
                  (enum-index tl (1+ index))))))
     (enum-index lst 0)))
 
+(definst (struct rest lst)
+  (let ((size 0))
+    (labels ((struct (lst)
+               (unless (null lst)
+                 (let ((hd (car lst))
+                       (tl (cadr lst)))
+                   (set-label hd tl)
+                   (incf size tl)
+                   (struct (cddr lst))))))
+      (struct lst)
+      (set-label :size size))))
+
 
 ;; z80 insts
 (defun bb (n)

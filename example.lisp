@@ -8,25 +8,30 @@
 (asm (org #x4000)
      (dw start 0 0 0 0 0 0))
 
-(defproc start
+(asmproc start
   (ld hl 0)
   (halt))
 
-(defproc silly-infinite-loop
+(asmproc silly-infinite-loop
   (ld a 0)
-  (with-label loop
+  (label loop
     (inc a)
     (jp loop)
     (label silly-label))
-  (nop))
+  (nop)
+  (ret))
 
-(defproc label-namespaces
+(asmproc label-namespaces
   (jp silly-infinite-loop.loop)
   (jp silly-infinite-loop.loop.silly-label))
 
-(defproc lisp-code-inside
+(asmproc lisp-code-inside
   (ld hl 0)
-  (ld hl $ (* 1 2 3 4 5 6)))
+  (ld hl (* 1 2 3 4 5 6))
+  (ret))
+
+(asmproc sprite
+  (struct x 2 y 2 color 1))
 
 (save-image "test.rom")
 (save-symbols "test.sym")
